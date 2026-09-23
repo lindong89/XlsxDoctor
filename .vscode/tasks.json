@@ -1,0 +1,176 @@
+{
+  // XlsxDoctor 的 VS Code 任务
+  //
+  //   编译          Ctrl+Shift+B
+  //   运行测试      Ctrl+Shift+P → Tasks: Run Test Task
+  //   全部任务      Ctrl+Shift+P → Tasks: Run Task
+  //
+  // 全部用 type:process 直接调可执行文件，不经过 shell，
+  // 这样路径里有空格也不会出问题。
+  "version": "2.0.0",
+
+  "tasks": [
+    {
+      "label": "编译 XlsxDoctor",
+      "detail": "正式构建：build.ps1 + 系统自带 csc.exe，不需要 .NET SDK，输出到 dist\\",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}\\build.ps1"
+      ],
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true, "echo": true },
+      "problemMatcher": ["$msCompile"]
+    },
+
+    {
+      "label": "编译 XlsxDoctor（带调试符号）",
+      "detail": "csc /debug+ /optimize-，产出 exe + pdb，供 F5 断点调试",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}\\build.ps1", "-DebugBuild"
+      ],
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true, "echo": true },
+      "problemMatcher": ["$msCompile"]
+    },
+
+    {
+      "label": "编译 XlsxDoctor（dotnet）",
+      "detail": "用 .NET SDK 编译 IDE 工程 XlsxDoctor.csproj，输出到 bin\\，供 C# 扩展做错误检查",
+      "type": "process",
+      "command": "dotnet",
+      "args": ["build", "${workspaceFolder}\\XlsxDoctor.csproj", "-v", "minimal", "-nologo"],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true, "echo": true },
+      "problemMatcher": ["$msCompile"]
+    },
+
+    {
+      "label": "运行：功能与安全回归测试",
+      "detail": "60 项断言，现场构造带陷阱的 xlsx 验证不会误删",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}\\tests\\RunTests.ps1"
+      ],
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true, "echo": true },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "运行：格式门禁测试",
+      "detail": "什么能进来、什么被挡住、挡住时说的是什么话（24 项）。CLI 与 GUI 两条路都测。不需要 Excel。",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}\\tests\\FormatGateTests.ps1"
+      ],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true, "echo": true },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "运行：.xls 专项测试（引擎关闭时自动跳过）",
+      "detail": ".xls（CFBF + BIFF8）引擎测试，51 项。需要 Excel。当前 FormatSniffer.XlsEnabled = false，脚本会打印跳过说明并返回 0。",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}\\tests\\XlsTests.ps1"
+      ],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true, "echo": true },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "运行：图形界面端到端测试",
+      "detail": "真的启动 GUI、真的点「修复并保存」、验证文件落盘（15 项）",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}\\tests\\GuiTest.ps1", "-Src", "${input:testXlsx}"
+      ],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true, "echo": true },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "启动图形界面",
+      "detail": "打开 dist\\XlsxDoctor.exe",
+      "type": "process",
+      "command": "cmd",
+      "args": ["/c", "start", "", "${workspaceFolder}\\dist\\XlsxDoctor.exe"],
+      "presentation": { "reveal": "silent" },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "显示命令行帮助",
+      "type": "process",
+      "command": "${workspaceFolder}\\dist\\XlsxDoctor-cli.exe",
+      "args": ["--help"],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true, "echo": true },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "分析一个文件（--dry-run，不写文件）",
+      "detail": "只出报告，不动任何文件",
+      "type": "process",
+      "command": "${workspaceFolder}\\dist\\XlsxDoctor-cli.exe",
+      "args": ["${input:testXlsx}", "--dry-run"],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true, "echo": true },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "查看 .xls 内部结构（--xls-info）",
+      "detail": "只读：CFBF 头 / BIFF 记录统计 / 公式令牌自检 / SUPBOOK 构成 / 定义名称原始编码",
+      "type": "process",
+      "command": "${workspaceFolder}\\dist\\XlsxDoctor-cli.exe",
+      "args": ["${input:testXlsx}", "--xls-info"],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true, "echo": true },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "重新生成图标（PNG -> ICO）",
+      "detail": "从 D:\\DEV\\icons\\xlsxdocter.png 生成 assets\\XlsxDoctor.ico（多尺寸，小尺寸 BMP / 大尺寸 PNG）。编译前 build.ps1 会在缺失时自动调用。",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}\\tools\\make-icon.ps1"
+      ],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true, "echo": true },
+      "problemMatcher": []
+    },
+
+    {
+      "label": "清理编译产物",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile", "-Command",
+        "Remove-Item -Recurse -Force '${workspaceFolder}\\dist','${workspaceFolder}\\bin','${workspaceFolder}\\obj' -ErrorAction SilentlyContinue; Write-Host 'dist / bin / obj 已清理'"
+      ],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+      "problemMatcher": []
+    }
+  ],
+
+  "inputs": [
+    {
+      "id": "testXlsx",
+      "type": "promptString",
+      "description": "表格文件的完整路径 —— 必须是**文件**，不是目录（任意含垃圾的 .xlsx / .xls 都行）"
+    }
+  ]
+}

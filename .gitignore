@@ -1,0 +1,15 @@
+﻿# 构建产物
+dist/
+bin/
+obj/
+*.pdb
+*.exe
+
+# IDE / 临时
+.vs/
+*.user
+*.suo
+
+# 工具备份
+*.bak
+.DS_Store

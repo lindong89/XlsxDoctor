@@ -1,0 +1,44 @@
+{
+  // ─────────────────────────────────────────────────────────────
+  //  本项目所有 .cs 必须保存为 UTF-8 带 BOM。
+  //
+  //  build.ps1 用的是 Windows 自带的 csc.exe，它读取无 BOM 的源码时
+  //  会按系统 ANSI 代码页解码 —— 源码里的中文会乱掉，甚至直接编译失败。
+  //
+  //  下面这条让 VS Code 保存 .cs 时自动带上 BOM。
+  //  （build.ps1 每次编译前也会自动补 BOM，所以这只是双保险，
+  //    但让你在编辑器右下角就能看到正确编码。）
+  // ─────────────────────────────────────────────────────────────
+  "[csharp]": {
+    "files.encoding": "utf8bom",
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.rulers": [120]
+  },
+
+  "[powershell]": {
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true
+  },
+
+  "[json]": { "editor.tabSize": 2 },
+  "[jsonc]": { "editor.tabSize": 2 },
+  "[markdown]": { "editor.wordWrap": "on" },
+
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.associations": { "*.manifest": "xml" },
+
+  // 编译产物，别让搜索和文件监视被它们拖慢
+  "search.exclude": {
+    "dist/**": true,
+    "bin/**": true,
+    "obj/**": true,
+    "**/*.bak": true
+  },
+  "files.watcherExclude": {
+    "**/dist/**": true,
+    "**/bin/**": true,
+    "**/obj/**": true
+  }
+}

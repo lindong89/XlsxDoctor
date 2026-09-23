@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    XlsxDoctor 的 IDE 工程文件
+    （给 Visual Studio / VS Code 的 C# Dev Kit / Rider 用）
+
+    它的唯一作用是让 IDE 有智能提示、报错检查和 F5 断点调试。
+    **正式编译请仍然用 build.ps1 / build.cmd / Ctrl+Shift+B** ——
+    那条路径用 Windows 自带的 csc.exe，不需要 .NET SDK。
+
+    两者产物位置不同，互不干扰：
+      build.ps1（正式）      -> dist\XlsxDoctor.exe  +  dist\XlsxDoctor-cli.exe
+      本工程（IDE / F5）     -> bin\Debug\net48\XlsxDoctor.exe
+  -->
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>assets\XlsxDoctor.ico</ApplicationIcon>
+
+    <!--
+      关键：源码必须保持 C# 5 兼容。
+      build.ps1 用的是 .NET Framework 目录里那个老的 csc.exe，它最高只支持 C# 5
+      （实测不支持字符串插值，会报 CS1056）。
+      在这里把语言版本锁死，IDE 会立刻标红，而不是等到编译时才发现。
+    -->
+    <LangVersion>5</LangVersion>
+
+    <AssemblyName>XlsxDoctor</AssemblyName>
+    <RootNamespace>XlsxDoctor</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+
+    <!-- 源码都在 src\ 子目录，这里显式列出，不让 SDK 自动扫描 -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+
+    <!-- src\AssemblyInfo.cs 里已经写了版本信息，别让 SDK 再生成一份（会重复定义） -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="src\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- net48 默认引用集里没有这两个，需要显式加 -->
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+
+</Project>

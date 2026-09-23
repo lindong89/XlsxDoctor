@@ -1,0 +1,65 @@
+{
+  // XlsxDoctor 的 F5 调试配置
+  //
+  // 三个配置都通过 preLaunchTask 先编译，再挂调试器启动。
+  // 断点请打在 src\*.cs 里。
+  "version": "0.2.0",
+
+  "configurations": [
+    {
+      "name": "调试图形界面（build.ps1 构建）",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "编译 XlsxDoctor（带调试符号）",
+      "program": "${workspaceFolder}\\dist\\XlsxDoctor.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+
+    {
+      "name": "调试图形界面（dotnet 构建）",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "编译 XlsxDoctor（dotnet）",
+      "program": "${workspaceFolder}\\bin\\Debug\\net48\\XlsxDoctor.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+
+    {
+      "name": "调试命令行（对文件跑 --dry-run）",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "编译 XlsxDoctor（带调试符号）",
+      "program": "${workspaceFolder}\\dist\\XlsxDoctor-cli.exe",
+      "args": ["${input:testXlsx}", "--dry-run"],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    },
+
+    {
+      "name": "调试命令行（分析当前打开的文件）",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "编译 XlsxDoctor（带调试符号）",
+      "program": "${workspaceFolder}\\dist\\XlsxDoctor-cli.exe",
+      "args": ["${file}", "--dry-run"],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    }
+  ],
+
+  "inputs": [
+    {
+      "id": "testXlsx",
+      "type": "promptString",
+      "description": "要分析的 xlsx 文件完整路径"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  // VS Code 打开本文件夹时会提示安装这些扩展
+  "recommendations": [
+    // C# 语法高亮、补全、跳转定义、F5 断点调试。
+    // 依赖：.NET SDK 8（已安装）+ 根目录的 XlsxDoctor.csproj
+    "ms-dotnettools.csharp",
+
+    // C# Dev Kit：解决方案视图、测试资源管理器、F5 集成。
+    // 需要 .csproj / .sln —— 本项目已有 XlsxDoctor.csproj。
+    "ms-dotnettools.csdevkit",
+
+    // PowerShell 编辑支持：build.ps1 和 tests\*.ps1
+    "ms-vscode.powershell"
+  ]
+}
